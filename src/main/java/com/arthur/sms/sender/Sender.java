@@ -1,4 +1,4 @@
-package com.arthur.sender;
+package com.arthur.sms.sender;
 
 import com.arthur.common.cache.LocalCache;
 

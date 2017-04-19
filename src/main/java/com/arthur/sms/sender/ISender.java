@@ -1,4 +1,4 @@
-package com.arthur.sender;
+package com.arthur.sms.sender;
 
 /**
  * 构建一个短信发送器的抽象接口
