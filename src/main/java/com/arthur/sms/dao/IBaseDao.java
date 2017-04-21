@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * 基本数据库操作方法接口
  * Created by wangtao on 17/4/21.
  */
 public interface IBaseDao {
