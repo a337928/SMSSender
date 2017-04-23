@@ -32,11 +32,11 @@ public class MyBatisConfig implements TransactionManagementConfigurer,Environmen
 	private RelaxedPropertyResolver datasourcePropertyResolver;
 
 	//从application.yml中读
-	@Override
-	public void setEnvironment(Environment environment) {
-		this.environment = environment;
-		this.datasourcePropertyResolver = new RelaxedPropertyResolver(environment,
-				"mybatis.");
+		@Override
+		public void setEnvironment(Environment environment) {
+			this.environment = environment;
+			this.datasourcePropertyResolver = new RelaxedPropertyResolver(environment,
+					"mybatis.");
 	}
 
 	@Resource
