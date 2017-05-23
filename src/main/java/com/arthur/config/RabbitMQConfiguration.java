@@ -2,27 +2,32 @@ package com.arthur.config;
 
 
 
+import com.arthur.rabbitMQ.Receiver;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitAdmin;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
+import org.springframework.amqp.rabbit.listener.adapter.MessageListenerAdapter;
 import org.springframework.boot.bind.RelaxedPropertyResolver;
 import org.springframework.context.EnvironmentAware;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.core.env.Environment;
-
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 
 /**
  * Created by wangtao on 17/4/23.
  */
+@Configuration
+@EnableTransactionManagement
 public class RabbitMQConfiguration implements EnvironmentAware {
 
-	final static String TEST_QUEUE_NAME = "test_queue";
-	final static String TEST_EXCHANGE_NAME = "test_exchange";
-	final static String ROUTING_KEY="test";
+	final static String TEST_QUEUE_NAME = "test_queue1";
+	final static String TEST_EXCHANGE_NAME = "test_exchange1";
+	final static String ROUTING_KEY="test1";
 	// RabbitMQ的配置信息
 
 	private String mqRabbitHost;
@@ -42,7 +47,9 @@ public class RabbitMQConfiguration implements EnvironmentAware {
 				"spring.rabbitmq.");
 		mqRabbitHost = rabbitPropertyResolver.getProperty("host");
 		mqRabbitPort = Integer.parseInt(rabbitPropertyResolver.getProperty("port"));
-		mqRabbitUsername = rabbitPropertyResolver.getProperty("spring");
+		mqRabbitUsername = rabbitPropertyResolver.getProperty("username");
+		mqRabbitPassword = rabbitPropertyResolver.getProperty("password");
+		mqRabbitVirtualHost = rabbitPropertyResolver.getProperty("virtual-host");
 	}
 
 
@@ -55,7 +62,7 @@ public class RabbitMQConfiguration implements EnvironmentAware {
 
 		connectionFactory.setUsername(mqRabbitUsername);
 		connectionFactory.setPassword(mqRabbitPassword);
-		connectionFactory.setVirtualHost(mqRabbitVirtualHost);
+		//connectionFactory.setVirtualHost(mqRabbitVirtualHost);
 
 		return connectionFactory;
 	}
@@ -74,35 +81,36 @@ public class RabbitMQConfiguration implements EnvironmentAware {
 	// 要求RabbitMQ建立一个队列。
 	@Bean
 	public Queue myQueue() {
-		return new Queue(TEST_QUEUE_NAME);
+		return new Queue(TEST_QUEUE_NAME,false);
 	}
 
 	// 声明一个监听容器
-//	@Bean
-//	SimpleMessageListenerContainer container(ConnectionFactory connectionFactory, Receiver listenerAdapter) {
-//
-//		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
-//		container.setConnectionFactory(connectionFactory);
-//		container.setQueueNames(new String[]{TEST_QUEUE_NAME});
-//		container.setMessageListener(listenerAdapter);
-//
-//		return container;
-//	}
+	@Bean
+	SimpleMessageListenerContainer container(ConnectionFactory connectionFactory,
+											 MessageListenerAdapter listenerAdapter) {
 
-	// 在spring容器中添加一个监听类
-//	@Bean
-//	Receiver receiver() {
-//		return new Receiver();
-//	}
+		SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
+		container.setConnectionFactory(connectionFactory);
+		container.setQueueNames(new String[]{TEST_QUEUE_NAME});
+		container.setMessageListener(listenerAdapter);
+
+		return container;
+	}
+
+	 //在spring容器中添加一个监听类
+	 @Bean
+	 MessageListenerAdapter listenerAdapter(Receiver receiver) {
+		 return new MessageListenerAdapter(receiver, "receiveMessage");
+	 }
 	// 定义一个直连交换机
 	@Bean
-	DirectExchange exchange() {
-		return new DirectExchange(TEST_EXCHANGE_NAME);
+	TopicExchange exchange() {
+		return new TopicExchange(TEST_EXCHANGE_NAME);
 	}
 	// 要求队列和直连交换机绑定，指定ROUTING_KEY
 	@Bean
-	Binding binding(Queue queue, DirectExchange exchange) {
-		return BindingBuilder.bind(queue).to(exchange).with(ROUTING_KEY);
+	Binding binding(Queue queue, TopicExchange exchange) {
+		return BindingBuilder.bind(queue).to(exchange).with(TEST_QUEUE_NAME);
 	}
 
 }

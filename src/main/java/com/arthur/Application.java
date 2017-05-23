@@ -9,6 +9,8 @@ import org.springframework.core.env.Environment;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.net.UnknownHostException;
+import java.util.HashMap;
+import java.util.Map;
 
 // same as @Configuration @EnableAutoConfiguration @ComponentScan
 @EnableTransactionManagement
@@ -17,5 +19,8 @@ public class Application {
     public static void main(String[] args) throws UnknownHostException {
         SpringApplication app = new SpringApplication(Application.class);
         Environment environment = app.run(args).getEnvironment();
+        HashMap map = new HashMap();
+
     }
+
 }
