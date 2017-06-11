@@ -14,6 +14,6 @@ public interface TestMapper {
 	@Insert("INSERT INTO TEST(NAME, SEX) VALUES(#{name}, #{sex})")
 	int insert(@Param("name") String name, @Param("sex") String sex);
 
-	@Select("SELECT * FROM TEST WHERE NAME = #{name}")
+	@Select("SELECT * FROM TEST WHERE NAME = #{name} limit 1")
 	TestNAME findByName(@Param("name") String name);
 }
